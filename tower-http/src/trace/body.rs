@@ -44,6 +44,10 @@ where
         cx: &mut Context<'_>,
     ) -> Poll<Option<Result<http_body::Frame<Self::Data>, Self::Error>>> {
         let this = self.project();
+        if this.span.is_disabled() {
+            return this.inner.poll_frame(cx);
+        }
+
         let _guard = this.span.enter();
         let result = ready!(this.inner.poll_frame(cx));
 
